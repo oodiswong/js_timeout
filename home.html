@@ -1,0 +1,101 @@
+{% load staticfiles %}
+
+<html>
+
+<head>
+	<meta id="windowID" content="chatbot_window">
+    <link rel="shortcut icon" href="" type="image/x-icon" />
+	<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.ui/1.10.2/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//ajax.aspnetcdn.com/ajax/jquery.ui/1.10.2/themes/ui-lightness/jquery-ui.css" type="text/css" />
+    <script type="text/javascript">
+        // Set timeout variables.
+        var timoutWarning = 10000; // Display warning in 1Mins.
+        var timoutNow = 20000; // Timeout in 2 mins.
+        //var logoutUrl = 'http://www.asp.net'; // URL to logout page.
+
+        var timeoutTimer;
+
+        // Start timers.
+        function StartTimers() {
+            timeoutTimer = setTimeout("IdleTimeout()", timoutNow);
+        }
+
+        // Reset timers.
+        function ResetTimers() {
+            clearTimeout(timeoutTimer);
+            StartTimers();
+            //$("#timeout").dialog('close');
+        }
+	
+        // Logout the user.
+        function IdleTimeout() {
+			var today = new Date();
+			var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+			var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+			var dateTime = date+' '+time;
+			var ws_element = document.getElementById('msg-list');
+            //document.getElementById('msg-list').innerHTML += dateTime+" Hi, Anything other I can help you ? If not, the chat will be closed in 1 minute<br />";
+			ws_element.setAttribute('innerHTML', ws_element+dateTime+" Hi, Anything other I can help you ? If not, the chat will be closed in 1 minute<br />");
+			if (confirm("Confirm to close ?")==true) {
+				console.log('ok in confirm');
+				//var win = window.open("about:blank", "_self");
+				//win.close();
+				//window.open('', '_self');
+				//window.close();
+				var id = request[‘x-window-id’];
+
+				id.self.close();
+			}
+			StartTimers();
+        }
+		
+    </script>
+    <meta charset="UTF-8">
+	<meta http-equiv="X-UA-compatible" content="IE=7,8,9,10,EDGE" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ODIS Assistant</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{% static 'css/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'chat.css' %}">
+
+    <!-- jQuery library -->
+    <script type="text/javascript" src="{% static 'js/js/jquery-3.2.1.min.js' %}"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="{% static 'js/js/bootstrap.min.js' %}"></script>
+</head>
+
+<body onload="StartTimers();" onkeydown="ResetTimers();">
+    <div id="chat-body" class="panel panel-default">
+	{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+        <div class="panel-heading"><strong>OCBC ODIS Assistant</strong></div>
+        <div id="msg-list-div" class="panel-body">
+            <ul id="msg-list" class="list-group">
+                <li class="text-left response list-group-item">Hi! I am OCBC ODIS Assistant, How may I help you today?</li>
+                <script>
+                    var chatlist = document.getElementById('msg-list-div');
+                    chatlist.scrollTop = chatlist.scrollHeight;
+                </script>
+            </ul>
+        </div>
+        <form id="chat-form" method="post" action="/post/">
+        <div id="chat-bottom" class="input-group">
+            <input type="text" id="chat-msg" name="chat-msg" class="form-control"/>
+            <span class="input-group-btn">
+                <input class="btn btn-danger" id="send" type="submit" value="Send"/>
+            </span>
+        </div>
+        </form>
+    </div>
+
+
+</body>
+<script src="{% static 'chat.js' %}"></script>
+</html>
